@@ -5,10 +5,15 @@ import androidx.core.content.ContextCompat;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng pos;
     GoogleMap mapa;
     Socket mSocket;
+    MediaPlayer mp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mSocket.on("taxiencontrado", taxiencontrado);
         mSocket.on("localizacion",localizacion);
         mSocket.on("Abordo",abordo);
+        mSocket.on("Enviarmensaje", enviarmensaje);
         mSocket.connect();
     }
     @Override
@@ -155,6 +162,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             dialog.cancel();
+                                        }
+                                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener enviarmensaje = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    mp = MediaPlayer.create(MainActivity.this, R.raw.musica);
+
+                    mp.start();
+                    builder.setMessage("Su conductor esta cerca")
+                            .setTitle("Mensaje")
+                            .setCancelable(false)
+                            .setNeutralButton("Aceptar",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                            mp.stop();
                                         }
                                     });
                     AlertDialog alert = builder.create();
